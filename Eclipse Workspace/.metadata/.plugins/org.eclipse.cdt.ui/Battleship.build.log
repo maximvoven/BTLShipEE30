@@ -1,18 +1,7 @@
-21:32:41 **** Incremental Build of configuration Debug for project Battleship ****
+09:27:46 **** Incremental Build of configuration Debug for project Battleship ****
 Info: Internal Builder is used for build
-g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "Battleship\\battleship.o" "..\\Battleship\\battleship.cpp" 
-..\Battleship\battleship.cpp: In function 'void launchBattlehip()':
-..\Battleship\battleship.cpp:23:6: warning: unused variable 'shots0' [-Wunused-variable]
-  int shots0[10][10]={};
-      ^~~~~~
-..\Battleship\battleship.cpp:24:6: warning: unused variable 'shots1' [-Wunused-variable]
-  int shots1[10][10]={};
-      ^~~~~~
-..\Battleship\battleship.cpp: At global scope:
-..\Battleship\battleship.cpp:112:13: warning: 'bool isHit(int (*)[10], int, int)' defined but not used [-Wunused-function]
- static bool isHit(int board[10][10], int r, int c){
-             ^~~~~
-g++ -o Battleship.exe "Battleship\\battleship.o" "Battleship\\randomShip.o" "Battleship\\ui.o" main.o 
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "Battleship\\ai.o" "..\\Battleship\\ai.cpp" 
+g++ -o Battleship.exe "Battleship\\ai.o" "Battleship\\battleship.o" "Battleship\\randomShip.o" "Battleship\\ui.o" main.o 
 
-21:32:41 Build Finished. 0 errors, 3 warnings. (took 486ms)
+09:27:46 Build Finished. 0 errors, 0 warnings. (took 426ms)
 
