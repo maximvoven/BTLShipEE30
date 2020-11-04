@@ -22,6 +22,7 @@ void setupShipsR(int board[boardrows][boardcolumns]){
 			{0,0,0,0,0,0,0,0,0,0},
 			{0,0,0,0,0,0,1,1,0,0}
 		};
+	board[1][1]=cruiserL;
 		for(int r=0;r<10;r++){
 			for(int c=0;c<10;c++){
 				board[r][c]=board1[r][c];

@@ -23,7 +23,7 @@ int * easyAiPlayer(){
 }
 
 //todo optimize code to have method calls?.
-int * aiPlayer(int board[10][10], int shots[10][10],bool lastShotHit,bool lastShotSank){
+int * aiPlayer(int board[10][10], int shots[10][10],bool lastShotHit,bool lastShotSank,int*returnR, int*returnC){
 	static int lastRow0=-1,lastCol0=-1,
 			lastRow1=-1,lastCol1=-1;
 	static int out[2];
@@ -125,6 +125,8 @@ int * aiPlayer(int board[10][10], int shots[10][10],bool lastShotHit,bool lastSh
 	lastCol1=lastCol0;
 	lastRow0=out[0];
 	lastCol0=out[1];
+	(*returnR)=out[0];
+	(*returnC)=out[1];
 	return out;
 
 }
