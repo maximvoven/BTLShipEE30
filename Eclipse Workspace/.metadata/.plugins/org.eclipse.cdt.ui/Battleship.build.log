@@ -1,6 +1,0 @@
-19:56:15 **** Incremental Build of configuration Debug for project Battleship ****
-Info: Internal Builder is used for build
-g++ -o Battleship.exe "Battleship\\ai.o" "Battleship\\battleship.o" "Battleship\\randomShip.o" "Battleship\\ui.o" main.o 
-
-19:56:15 Build Finished. 0 errors, 0 warnings. (took 367ms)
-
