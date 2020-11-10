@@ -1,9 +1,0 @@
-Info: Nothing to build for Battleship
-09:50:03 **** Clean-only build of configuration Debug for project Battleship ****
-rm -rf Battleship/battleship.o Battleship/randomShip.o Battleship/ui.d Battleship.exe Battleship/ui.o main.o main.d Battleship/randomShip.d Battleship/battleship.d 
-Cannot run program "rm": Launching failed
-
-Error: Program "rm" not found in PATH
-PATH=[C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;\bin;\usr\bin;C:/Program Files/Java/jdk-14.0.2/bin/server;C:/Program Files/Java/jdk-14.0.2/bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Git\cmd;C:\Program Files (x86)\IncrediBuild;C:\Program Files\Wolfram Research\WolframScript\;c:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;c:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Users\Maxim Vovenko\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\Maxim Vovenko\AppData\Local\Programs\Python\Python38\;C:\Users\Maxim Vovenko\AppData\Local\Microsoft\WindowsApps;C:\Users\Maxim Vovenko\AppData\Roaming\npm;C:\Users\Maxim Vovenko\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\Users\Maxim Vovenko\AppData\Local\Keybase\;C:\Users\Maxim Vovenko\eclipse\cpp-2020-06\eclipse]
-
-09:50:03 **** Clean-only build of configuration Debug for project Battleship ****
