@@ -18,89 +18,80 @@
 
 #define DEBUG 1
 
-static void debugPrintArray(int array[10][10]);
+static void debugState(board Board, aiMemory ai);
 static bool isValidRC(int r,int c);
 static bool isHit(int board[10][10], int r, int c);
-
-struct gameBoard{
-	int board[10][10];
-	int shots[10][10];
-	bool ShotHit;
-	bool ShipSunk;
-};
-typedef struct gameBoard board;
 
 void launchBattlehip(){
 	setbuf(stdout,NULL);
 	bool gameEnd=false;
 	board player1={{},{},false,false};
 	board player2={{},{},false,false};
-	int board0[10][10]={};
-	int board1[10][10]={};
-	int shots0[10][10]={};
-	int shots1[10][10]={};
-	bool aiHit0=false,aiSank0=false,aiHit1=false,aiSank1=false;
-	int tempr,tempc, gameMode=0;
+	//We Initialize Memory of Both Ai Engines
+	aiMemory ai1={{-1,-1},{-1,-1},0,0};
+	aiMemory ai2={{-1,-1},{-1,-1},0,0};
+	int shot[2]={}, gameMode=0; //gamemode 0=ai v ai, 1=human vs ai, 2=human v human
 
-	setupShipsR(board0);
-	setupShipsR(board1);
+	setupShipsR(player1.board);
+	setupShipsR(player2.board);
 
 	while(!gameEnd){
 		//Player Code
 
 		clearScreen();
-		displayShots(shots0);
-		displayShips(board0);
+		displayShots(player1.shots);
+		displayShips(player1.board);
+
 		if(DEBUG){
-			printf("Player 1 Shots");
-			debugPrintArray(shots0);
-			printf("Player 1 Board");
-			debugPrintArray(board0);
+			printf("Player 1");
+			debugState(player1, ai1);
 		}
+		//Ai Vs Human Player, Selected by game mode
 		if(gameMode>=1){
-		printf("Enter Firing Coordinates (Letter Number):\n");
-		do{
-			char r;
-			scanf("%c%d", &r,&tempc);
-			tempr=tolower(r)-97;
-		}while(!isValidRC(tempr, tempc));
+//			printf("Enter Firing Coordinates (Letter Number):\n");
+//			do{
+//				char r;
+//				scanf("%c%d", &r,&shot[1]);
+//				shot[0]=tolower(r)-97;
+//			}while(!isValidRC(shot[0], shot[1]));
 		} else {
-			printf("Ai Player0 Is Thinking ... ");
-			aiPlayer(board0, shots0, aiHit1, aiSank1, &tempr, &tempc);
-			printf("%c%d\n",tempr+97,tempc);
-		}
-		//Shot Logic Player0
-		if(isHit(board1, tempr, tempc)){
-			board1[tempr][tempc]=board1[tempr][tempc]*-1;
-			shots0[tempr][tempc]=hit;
-		} else {
-			shots0[tempr][tempc]=miss;
+			printf("Ai 1 Is Thinking ... ");
+			aiPlayer(player1, &ai1, shot);
+			printf("%c%d\n",shot[0]+97,shot[1]);
 		}
 
-		printf("Ai Player Is Thinking ... ");
-		aiPlayer(board1, shots1, aiHit0, aiSank0, &tempr, &tempc);
-		printf("%c%d\n",tempr+97,tempc);
-
-		//Shot Logic Player1 or AI
-		if(isHit(board0, tempr, tempc)){
-			board0[tempr][tempc]=board0[tempr][tempc]*-1;
-			shots1[tempr][tempc]=hit;
-			aiHit0=true;
+		//Shot Logic Player1
+		if(isHit(player2.board, shot[0], shot[1])){
+			player2.board[shot[0]][shot[1]]=player2.board[shot[0]][shot[1]]*-1;
+			player1.shots[shot[0]][shot[1]]=hit;
+			player1.ShotHit=true;
 		} else {
-			shots1[tempr][tempc]=miss;
-			aiHit0=false;
+			player1.shots[shot[0]][shot[1]]=miss;
+			player1.ShotHit=false;
 		}
+
+
 		if(DEBUG){
-			printf("Player 2 Shots");
-			debugPrintArray(shots1);
-			printf("Player 2 Board");
-			debugPrintArray(board1);
-			printf("Hit: %d\n",aiHit0);
+			printf("Ai 2");
+			debugState(player2,ai2);
 		}
+
+		printf("Ai 2 Is Thinking ... ");
+		aiPlayer(player2, &ai2, shot);
+		printf("%c%d\n",shot[0]+97,shot[1]);
+
+		//Shot Logic Player2 or AI
+		if(isHit(player1.board, shot[0], shot[1])){
+			player1.board[shot[0]][shot[1]]=player1.board[shot[0]][shot[1]]*-1;
+			player2.shots[shot[0]][shot[1]]=hit;
+			player2.ShotHit=true;
+		} else {
+			player2.shots[shot[0]][shot[1]]=miss;
+			player2.ShotHit=false;
+		}
+
 		printf("Press Any Key to Start Next Turn");
 		getchar();
-		getchar();
-
 	}
 
 
@@ -123,21 +114,47 @@ static bool isHit(int board[10][10], int r, int c){
 	return false;
 }
 
-static void debugPrintArray(int array[10][10]){
-	printf("\n-----------------------\n");
+static void debugState(board Board,aiMemory ai){
+	printf("\n----------------------------------------------\n");
 	for(int r=0;r<10;r++){
 		printf("|");
 		for(int c=0;c<10;c++){
-			if(array[r][c]>=0){
-				if(array[r][c]==0){
+			if(Board.shots[r][c]>=0){
+				if(Board.shots[r][c]==0){
 					printf("  ");
 				}
-				else printf(" %d",array[r][c]);
+				else printf(" %d",Board.shots[r][c]);
 			} else {
-				printf("%d",array[r][c]);
+				printf("%d",Board.shots[r][c]);
 			}
 		}
-		printf(" |\n");
+		printf(" |");
+		for(int c=0;c<10;c++){
+			if(Board.board[r][c]>=0){
+				if(Board.board[r][c]==0){
+					printf("  ");
+				}
+				else printf(" %d",Board.board[r][c]);
+			} else {
+				printf("%d",Board.board[r][c]);
+			}
+		}
+		printf(" |");
+		switch(r){
+		case 1:
+			printf(" SIP: %d",ai.searchInProgress);
+			break;
+		case 2:
+			printf(" SST: %d",ai.searchState);
+			break;
+		case 3:
+			printf(" FSS: %d %d",ai.firstShot[0], ai.firstShot[1]);
+			break;
+		case 4:
+			printf(" SSS: %d %d",ai.secondShot[0],ai.secondShot[1]);
+			break;
+		}
+		printf("\n");
 	}
-	printf("-----------------------\n");
+	printf("----------------------------------------------\n");
 }

@@ -26,4 +26,21 @@
 #define destroyer 1
 #define destroyerL 2
 
+struct gameBoard{
+	int board[10][10];
+	int shots[10][10];
+	bool ShotHit;
+	bool ShipSunk;
+};
+
+struct gameShotHistory{
+	int firstShot[2];
+	int secondShot[2];
+	int searchState;
+	int searchInProgress;
+};
+
+typedef struct gameBoard board;
+typedef struct gameShotHistory aiMemory;
+
 #endif /* BATTLESHIP_BOARD_H_ */

@@ -8,127 +8,156 @@
 #include <time.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "board.h"
+#include "ai.h"
 
 static bool isValidRC(int r,int c);
-int * easyAiPlayer();
-int * aiPlayer(int board[10][10], int shots[10][10],bool lastShotHit,bool lastShotSank);
+static void resetMemory(aiMemory *memory);
+static bool isEmpty(int r, int c, board Board);
 
-int * easyAiPlayer(){
-	static int out[2];
+void easyAiPlayer(int out[2]){
 	srand(time(NULL));
 	out[0]=rand()%10;
 	out[1]=rand()%10;
-	return out;
 }
 
 //todo optimize code to have method calls?.
-int * aiPlayer(int board[10][10], int shots[10][10],bool lastShotHit,bool lastShotSank,int*returnR, int*returnC){
-	static int lastRow0=-1,lastCol0=-1,
-			lastRow1=-1,lastCol1=-1;
-	static int out[2];
-	if(lastShotSank){ //If Ship Sunk we reset State Machine
-		lastRow0=-1;lastCol0=-1;
-		lastRow1=-1;lastCol1=-1;
+void aiPlayer(board Board, aiMemory *memory,int shot[2]){
+	//Reset Ai Engine State if we sink ship
+	if(Board.ShipSunk){
+		Board.ShipSunk=false;
+		Board.ShotHit=false;
+		resetMemory(memory);
 	}
-	if(isValidRC(lastRow0,lastCol0)){
-		if(lastShotHit){
-			if(isValidRC(lastRow1,lastCol1)){
-				out[0]=(2*lastRow0-lastRow1);
-				out[1]=(2*lastCol0-lastCol1);
-				if(!isValidRC(out[0], out[1])){
-					int seekr=lastRow1-lastRow0;
-					int seekc=lastCol1-lastCol0;
-					int seek=1;
-					while(shots[lastRow0+seekr*seek][lastCol0+seekc*seek]==hit){
-						seek++;
-					}
-					out[0]=lastRow0+seekr*seek;
-					out[1]=lastCol0+seekc*seek;
-					lastRow0=lastRow0+seekr*(seek-1);
-					lastCol0=lastCol0+seekc*seek;
-				}
-
-			} else {
-				lastRow1=lastRow0;
-				lastCol1=lastCol0;
-				srand(time(NULL));
-				int direction=rand()%4;
-				int tempr,tempc;
-				do{
-					switch(direction){
-					case 0:
-						tempr=lastRow0+1;
-						tempc=lastCol0;
-						break;
-					case 1:
-						tempr=lastRow0-1;
-						tempc=lastCol0;
-						break;
-					case 2:
-						tempr=lastRow0;
-						tempc=lastCol0+1;
-						break;
-					case 3:
-						tempr=lastRow0;
-						tempc=lastCol0-1;
-						break;
-					}
-					if(!isValidRC(tempr, tempc)) direction = (direction+1)%4;
-				} while(!isValidRC(tempr, tempc));
-				out[0]=tempr;
-				out[1]=tempc;
-
-			}
-		}else{
-			if(isValidRC(lastRow1,lastCol1)){
-				int seekr=lastRow1-lastRow0;
-				int seekc=lastCol1-lastCol0;
-				int seek=1;
-				while(shots[lastRow0+seekr*seek][lastCol0+seekc*seek]==hit){
-					seek++;
-				}
-				out[0]=lastRow0+seekr*seek;
-				out[1]=lastCol0+seekc*seek;
-			} else {
-				srand(time(NULL));
-				out[0]=rand()%10;
-				out[1]=rand()%10;
-				while(shots[out[0]][out[1]]!=0){
-					out[0]++;
-					if(out[0]>=10){
-						out[0]=0;
-						out[1]=(out[1]+1)%10;
-					}
-				}
+	if(Board.ShotHit==false && memory->secondShot[0]<0){
+		resetMemory(memory);
+	}
+	//Search Pattern (Random Guessing)
+	if(memory->firstShot[0]<0){
+		srand(time(NULL));
+		shot[0]=rand()%10;
+		shot[1]=rand()%10;
+		while(isEmpty(shot[0],shot[1],Board)==false){
+			shot[0]++;
+			if(shot[0]>9){
+				shot[0]=0;
+				shot[1]++;
+				if(shot[1]>9) shot[1]=0;
 			}
 		}
-	}else{
-		srand(time(NULL));
-		out[0]=rand()%10;
-		out[1]=rand()%10;
+		memory->firstShot[0]=shot[0];
+		memory->firstShot[1]=shot[1];
+		Sleep(rand()%300 + 100);
+		return;
+	}
+	//+ Search Pattern
+	//Initialize Search
+	if(Board.ShotHit && memory->searchInProgress==0){
+		memory->searchState=1;
+		memory->searchInProgress=1;
+		memory->secondShot[0]=memory->firstShot[0];
+		memory->secondShot[1]=memory->firstShot[1];
+		shot[0]=memory->firstShot[0]-1;
+		shot[1]=memory->firstShot[1];
+		if(!isValidRC(shot[0], shot[1])){
+			memory->searchState=2;
+			shot[0]=memory->firstShot[0]+1;
+			shot[1]=memory->firstShot[1];
+		}
+		memory->firstShot[0]=shot[0];
+		memory->firstShot[1]=shot[1];
+		return;
 	}
 
-	if(!isValidRC(out[0], out[1])){
-		printf("State Machine Did Ouff");
-		printf("CURRENT STATE:\n %d %d %d %d %d %d",out[0],out[1],lastRow0,lastCol0,lastRow1,lastCol1);
-		srand(time(NULL));
-		out[0]=rand()%10;
-		out[1]=rand()%10;
-		lastRow0=-1;
-		lastCol0=-1;
-		lastRow1=-1;
-		lastCol1=-1;
+	if(Board.ShotHit && memory->searchInProgress==1){
+		//If Last Shot Hit Keep Shooting in that direction
+		memory->searchInProgress=2;
+	}else if(!Board.ShotHit && memory->searchInProgress==1){
+		//If Shot Miss Continue + Search Pattern
+		memory->searchState++;
+		do{
+			switch(memory->searchState){
+			case 1:
+				shot[0]=memory->secondShot[0]-1;
+				shot[1]=memory->secondShot[1];
+				break;
+			case 2:
+				shot[0]=memory->secondShot[0]+1;
+				shot[1]=memory->secondShot[1];
+				break;
+			case 3:
+				shot[0]=memory->secondShot[0];
+				shot[1]=memory->secondShot[1]-1;
+				break;
+			case 4:
+				shot[0]=memory->secondShot[0];
+				shot[1]=memory->secondShot[1]+1;
+				break;
+			}
+			if(!(isValidRC(shot[0],shot[1])&&isEmpty(shot[0],shot[1],Board))){
+				memory->searchState=(memory->searchState)+1;
+				if((memory->searchState) > 4){
+					resetMemory(memory);
+					aiPlayer(Board, memory, shot);
+				}
+			}
+		}while(isValidRC(shot[0],shot[1])&&isEmpty(shot[0],shot[1],Board));
+		memory->firstShot[0]=shot[0];
+		memory->firstShot[1]=shot[1];
+		return;
+
+	}
+	if(Board.ShotHit && (memory->searchInProgress) == 2){
+		memory->secondShot[0]=memory->firstShot[0];
+		memory->secondShot[1]=memory->firstShot[1];
+		switch(memory->searchState){
+		case 1:
+			shot[0]=memory->secondShot[0]-1;
+			shot[1]=memory->secondShot[1];
+			break;
+		case 2:
+			shot[0]=memory->secondShot[0]+1;
+			shot[1]=memory->secondShot[1];
+			break;
+		case 3:
+			shot[0]=memory->secondShot[0];
+			shot[1]=memory->secondShot[1]-1;
+			break;
+		case 4:
+			shot[0]=memory->secondShot[0];
+			shot[1]=memory->secondShot[1]+1;
+			break;
+		}
+		memory->firstShot[0]=shot[0];
+		memory->firstShot[0]=shot[1];
+		return;
+	} else if(!Board.ShotHit && (memory->searchInProgress==2)){
+		memory->searchInProgress=3;
 	}
 
-	lastRow1=lastRow0;
-	lastCol1=lastCol0;
-	lastRow0=out[0];
-	lastCol0=out[1];
-	(*returnR)=out[0];
-	(*returnC)=out[1];
-	return out;
 
+
+
+}
+static void resetMemory(aiMemory *memory){
+	memory->firstShot[0]=-1;
+	memory->firstShot[1]=-1;
+	memory->secondShot[0]=-1;
+	memory->secondShot[1]=-1;
+	memory->searchState=0;
+	memory->searchInProgress=0;
+}
+static bool isEmpty(int r, int c, board Board){
+	if(Board.shots[r][c]==0){
+		return true;
+	}
+	return false;
 }
 
 static bool isValidRC(int r,int c){
