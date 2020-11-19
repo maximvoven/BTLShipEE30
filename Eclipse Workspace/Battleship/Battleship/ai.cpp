@@ -22,7 +22,7 @@ static void resetMemory(aiMemory *memory);
 static bool isEmpty(int r, int c, board Board);
 
 void easyAiPlayer(int out[2]){
-	srand(time(NULL));
+	//srand(time(NULL));
 	out[0]=rand()%10;
 	out[1]=rand()%10;
 }
@@ -42,7 +42,7 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 	}
 	//Search Pattern (Random Guessing)
 	if(memory->firstShot[0]<0){
-		srand(time(NULL));
+		//srand(time(NULL));
 		shot[0]=rand()%10;
 		shot[1]=rand()%10;
 		while(isEmpty(shot[0],shot[1],Board)==false){

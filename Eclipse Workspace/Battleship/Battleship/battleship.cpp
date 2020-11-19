@@ -17,7 +17,7 @@
 #include "ui.h"
 #include "ai.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 static void debugState(board Board, aiMemory ai);
 static bool isValidRC(int r,int c);
@@ -28,6 +28,7 @@ static bool isGameOver(int arr[10][10],int gameOverState);
 
 void launchBattlehip(){
 	setbuf(stdout,NULL);
+	srand(time(NULL));
 	bool gameEnd=false;
 	board player1={{},{},false,false};
 	board player2={{},{},false,false};
@@ -35,6 +36,8 @@ void launchBattlehip(){
 	aiMemory ai1={{-1,-1},{-1,-1},0,0};
 	aiMemory ai2={{-1,-1},{-1,-1},0,0};
 	int shot[2]={}, gameMode=0; //gamemode 0=ai v ai, 1=human vs ai, 2=human v human
+
+	//todo: We Should Draw Title Screen, and let player select game mode (gamemode 0=ai v ai, 1=human vs ai, 2=human v human)
 
 	setupShipsR(player1.board);
 	setupShipsR(player2.board);
