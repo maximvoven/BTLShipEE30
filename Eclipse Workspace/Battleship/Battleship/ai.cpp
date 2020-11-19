@@ -80,7 +80,8 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 	if(Board.ShotHit && memory->searchInProgress==1){
 		//If Last Shot Hit Keep Shooting in that direction
 		memory->searchInProgress=2;
-		memory->secondShot=memory->firstShot;
+		memory->secondShot[0]=memory->firstShot[0];
+		memory->secondShot[1]=memory->firstShot[1];
 	}else if(!Board.ShotHit && memory->searchInProgress==1){
 		//If Shot Miss Continue + Search Pattern
 		memory->searchState++;
