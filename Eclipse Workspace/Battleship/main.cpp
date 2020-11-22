@@ -7,12 +7,15 @@
 #include <stdlib.h>
 
 #include "Battleship/battleship.h"
-//Un-comment Header File to Test Code
-//#include "Battleship/battleship.h"
-//#include "Battleship/randomShip.h"
-//#include "Battleship/ui.h"
+
+int unitTest = 1; //Auto Play the Game
 
 int main(){
-	launchBattlehip();
+	if(unitTest==0){
+		launchBattlehip();
+		return EXIT_SUCCESS;
+	}else{
+		testBattleShip(unitTest);
+	}
 	return EXIT_SUCCESS;
 }

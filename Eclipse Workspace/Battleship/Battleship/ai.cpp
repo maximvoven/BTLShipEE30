@@ -8,12 +8,6 @@
 #include <time.h>
 #include <stdio.h>
 
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
-
 #include "board.h"
 #include "ai.h"
 
@@ -22,7 +16,6 @@ static void resetMemory(aiMemory *memory);
 static bool isEmpty(int r, int c, board Board);
 
 void easyAiPlayer(int out[2]){
-	//srand(time(NULL));
 	out[0]=rand()%10;
 	out[1]=rand()%10;
 }
@@ -42,7 +35,6 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 	}
 	//Search Pattern (Random Guessing)
 	if(memory->firstShot[0]<0){
-		//srand(time(NULL));
 		shot[0]=rand()%10;
 		shot[1]=rand()%10;
 		while(isEmpty(shot[0],shot[1],Board)==false){
@@ -55,7 +47,6 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 		}
 		memory->firstShot[0]=shot[0];
 		memory->firstShot[1]=shot[1];
-		Sleep(rand()%300 + 100);
 		return;
 	}
 	//+ Search Pattern
@@ -80,8 +71,6 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 	if(Board.ShotHit && memory->searchInProgress==1){
 		//If Last Shot Hit Keep Shooting in that direction
 		memory->searchInProgress=2;
-		memory->secondShot[0]=memory->firstShot[0];
-		memory->secondShot[1]=memory->firstShot[1];
 	}else if(!Board.ShotHit && memory->searchInProgress==1){
 		//If Shot Miss Continue + Search Pattern
 		memory->searchState++;
@@ -101,12 +90,17 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 				break;
 			default:
 				perror("Search State Exceeded 4, Progress State 1");
-				exit(EXIT_FAILURE);
+				resetMemory(memory);
+				aiPlayer(Board, memory, shot);
+				return;
 				break;
 			}
-			if(!(isValidRC(shot[0],shot[1]) || isEmpty(shot[0],shot[1],Board))){
+			if(!isValidRC(shot[0],shot[1])){
+				memory->searchState=(memory->searchState)+1;
+			}else if(!isEmpty(shot[0],shot[1],Board)){
 				memory->searchState=(memory->searchState)+1;
 			}
+
 			if((memory->searchState) > 4){
 				resetMemory(memory);
 				aiPlayer(Board, memory, shot);
@@ -123,30 +117,102 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 		memory->secondShot[1]=memory->firstShot[1];
 		switch(memory->searchState){
 		case 1:
-			shot[0]=memory->secondShot[0]-1;
+			shot[0]=memory->firstShot[0]-1;
+			shot[1]=memory->firstShot[1];
+			break;
+		case 2:
+			shot[0]=memory->firstShot[0]+1;
+			shot[1]=memory->firstShot[1];
+			break;
+		case 3:
+			shot[0]=memory->firstShot[0];
+			shot[1]=memory->firstShot[1]-1;
+			break;
+		case 4:
+			shot[0]=memory->firstShot[0];
+			shot[1]=memory->firstShot[1]+1;
+			break;
+		}
+		if(!isValidRC(shot[0],shot[1])){
+			memory->searchInProgress=(memory->searchInProgress)+1;
+		}else if(!isEmpty(shot[0],shot[1],Board)){
+			memory->searchInProgress=(memory->searchInProgress)+1;
+		} else{
+			memory->firstShot[0]=shot[0];
+			memory->firstShot[0]=shot[1];
+			return;
+		}
+	} else if(!Board.ShotHit && (memory->searchInProgress==2)){
+		memory->searchInProgress=3;
+		shot[0]=memory->firstShot[0];
+		shot[1]=memory->firstShot[1];
+		while(isValidRC(shot[0], shot[1]) && Board.shots[shot[0]][shot[1]]!=0){
+			switch(memory->searchState){
+			case 1:
+				shot[0]=shot[0]+1;
+				break;
+			case 2:
+				shot[0]=shot[0]-1;
+				break;
+			case 3:
+				shot[1]=shot[1]+1;
+				break;
+			case 4:
+				shot[1]=shot[1]-1;
+				break;
+			}
+			if(!isValidRC(shot[0], shot[1])){
+				resetMemory(memory);
+				aiPlayer(Board, memory, shot);
+				return;
+			}
+		}
+		if(!isValidRC(shot[0], shot[1])){
+			resetMemory(memory);
+			aiPlayer(Board, memory, shot);
+			return;
+		}
+		memory->secondShot[0]=memory->firstShot[0];
+		memory->secondShot[1]=memory->firstShot[1];
+		memory->firstShot[0]=shot[0];
+		memory->firstShot[1]=shot[1];
+		return;
+	}
+	if(memory->searchInProgress==3 && Board.ShotHit){
+		memory->secondShot[0]=memory->firstShot[0];
+		memory->secondShot[1]=memory->firstShot[1];
+		switch(memory->searchState){
+		case 1:
+			shot[0]=memory->secondShot[0]+1;
 			shot[1]=memory->secondShot[1];
 			break;
 		case 2:
-			shot[0]=memory->secondShot[0]+1;
+			shot[0]=memory->secondShot[0]-1;
 			shot[1]=memory->secondShot[1];
 			break;
 		case 3:
 			shot[0]=memory->secondShot[0];
-			shot[1]=memory->secondShot[1]-1;
+			shot[1]=memory->secondShot[1]+1;
 			break;
 		case 4:
 			shot[0]=memory->secondShot[0];
-			shot[1]=memory->secondShot[1]+1;
+			shot[1]=memory->secondShot[1]-1;
 			break;
 		}
 		memory->firstShot[0]=shot[0];
 		memory->firstShot[0]=shot[1];
 		return;
-	} else if(!Board.ShotHit && (memory->searchInProgress==2)){
-		memory->searchInProgress=3;
 	}
-
+	else if(memory->searchInProgress==3 && !Board.ShotHit){
+		resetMemory(memory);
+		aiPlayer(Board, memory, shot);
+		return;
+	}
+	printf("We Shouldn't Be HERE Something has gone wrong!");
+	while(1);
+	return;
 }
+
 
 static void resetMemory(aiMemory *memory){
 	memory->firstShot[0]=-1;
