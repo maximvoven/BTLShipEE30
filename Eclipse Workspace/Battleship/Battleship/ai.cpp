@@ -89,7 +89,6 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 				shot[1]=memory->secondShot[1]+1;
 				break;
 			default:
-				perror("Search State Exceeded 4, Progress State 1");
 				resetMemory(memory);
 				aiPlayer(Board, memory, shot);
 				return;
@@ -139,7 +138,7 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 			memory->searchInProgress=(memory->searchInProgress)+1;
 		} else{
 			memory->firstShot[0]=shot[0];
-			memory->firstShot[0]=shot[1];
+			memory->firstShot[1]=shot[1];
 			return;
 		}
 	} else if(!Board.ShotHit && (memory->searchInProgress==2)){

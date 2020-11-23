@@ -17,7 +17,7 @@
 #include "ui.h"
 #include "ai.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 static void debugState(board Board, aiMemory ai);
 static bool isValidRC(int r,int c);
@@ -26,15 +26,20 @@ static void shipSunk(board *player1, board *player2, int shot[2]);
 static int sGameOver(int arr[10][10]);
 static bool isGameOver(int arr[10][10],int gameOverState);
 
-static int UnitTesting=0;//If True then Disables all interactions and forces dual ai players.
+static int UnitTesting=0;//If True then Disables all interactions and forces duals between ai players.
+static int setuprandom=0;
 
 int launchBattlehip(){
 	setbuf(stdout,NULL);
-	srand(time(NULL));
+	if(setuprandom==0){
+		setuprandom=1;
+		srand(time(NULL));
+	}
 	bool gameEnd=false;
 	board player1={{},{},false,false};
 	board player2={{},{},false,false};
-	//We Initialize Memory of Both Ai Engines
+	//We Initialize Memory for Both Ai Engines
+	//todo move initialization into ai.cpp function call.
 	aiMemory ai1={{-1,-1},{-1,-1},0,0};
 	aiMemory ai2={{-1,-1},{-1,-1},0,0};
 	int shot[2]={}, gameMode=0; //gamemode 0=ai v ai, 1=human vs ai, 2=human v human
@@ -52,7 +57,7 @@ int launchBattlehip(){
 	int gameOverState2 = sGameOver(player2.board);
 
 	while(!gameEnd){
-		if(DEBUG || UnitTesting){
+		if(DEBUG && gameMode!=0){
 			printf("Player 1");
 			debugState(player1, ai1);
 		}
@@ -66,13 +71,14 @@ int launchBattlehip(){
 			do{
 				char r;
 				scanf("%c%d", &r,&shot[1]);
-				shot[0]=tolower(r)-97;
+				shot[0]=tolower(r)-'a';
 				if(!isValidRC(shot[0], shot[1])){
 					fputs("Coordinates Invalid\n",stdout);
 				}
 			}while(!isValidRC(shot[0], shot[1]));
 		} else {
-			printf("Ai 1 Is Thinking ... ");
+			printf("Ai 1 Is Thinking ...");
+			if(gameMode==0)debugState(player1, ai1);
 			aiPlayer(player1, &ai1, shot);
 			printf("%c%d\n",shot[0]+97,shot[1]);
 		}
@@ -92,12 +98,14 @@ int launchBattlehip(){
 			return(1);
 			break;
 		}
+		//END Shot Logic Player1
 
-		if(DEBUG){
-			printf("Ai 2");
-			debugState(player2,ai2);
+		if(DEBUG && gameMode!=0){
+			printf("Player 2");
+			debugState(player2, ai2);
 		}
 
+		//Player 2 Interaction
 		if(gameMode>=2){
 			if(!DEBUG)clearScreen();
 			displayShots(player2.shots);
@@ -106,18 +114,20 @@ int launchBattlehip(){
 			do{
 				char r;
 				scanf("%c%d", &r,&shot[1]);
-				shot[0]=tolower(r)-97;
+				shot[0]=tolower(r)-'a';
 				if(!isValidRC(shot[0], shot[1])){
 					fputs("Coordinates Invalid\n",stdout);
 				}
 			}while(!isValidRC(shot[0], shot[1]));
 		}else{
 			printf("Ai 2 Is Thinking ... ");
+			if(gameMode==0)debugState(player2, ai2);
 			aiPlayer(player2, &ai2, shot);
 			printf("%c%d\n",shot[0]+97,shot[1]);
 		}
+		//END PLayer 2 Interaction
 
-		//Shot Logic Player2 or AI
+		//Shot Logic Player2
 		if(isHit(player1.board, shot[0], shot[1])){
 			player1.board[shot[0]][shot[1]]=abs(player1.board[shot[0]][shot[1]])*-1;
 			player2.shots[shot[0]][shot[1]]=hit;
@@ -132,9 +142,12 @@ int launchBattlehip(){
 			return(2);
 			break;
 		}
+		//END Shot Logic Player 2
 
-		printf("Press Any Key to Start Next Turn");
-		if(!UnitTesting)getchar();
+		if(!UnitTesting && gameMode==0){
+			printf("Press Any Key to Start Next Ai Turn");
+			getchar();
+		}
 	}
 
 

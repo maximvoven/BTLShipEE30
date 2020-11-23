@@ -8,7 +8,7 @@
 
 #include "Battleship/battleship.h"
 
-int unitTest = 1; //Auto Play the Game
+int unitTest = 0; //Auto Play the Game
 
 int main(){
 	if(unitTest==0){
