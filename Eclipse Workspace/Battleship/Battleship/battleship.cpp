@@ -17,7 +17,7 @@
 #include "ui.h"
 #include "ai.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 static void debugState(board Board, aiMemory ai);
 static bool isValidRC(int r,int c);
@@ -166,8 +166,29 @@ static void shipSunk(board *player1,board *player2, int shot[2]){
 		}
 		if(accumelator==0){
 			player1->ShipSunk=true;
-		}
-	}else{
+            switch (abs(player2->board[shot[0]][shot[1]])) {
+                case battleship:
+                    printf("Battleship has been Sunk!\n");
+                    break;
+                    
+                case carrier:
+                    printf("Carrier has been Sunk!\n");
+                    break;
+                    
+                case cruiser:
+                    printf("Cruiser has been Sunk!\n");
+                    break;
+                    
+                case submarine:
+                    printf("Submarine has been Sunk!\n");
+                    break;
+                    
+                case destroyer:
+                    printf("Destroyer has been Sunk!\n");
+                    break;
+            }
+        }
+        
 		player1->ShipSunk=false;
 	}
 }

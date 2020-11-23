@@ -32,7 +32,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
 {
     //L at the end of ship name gives length ship
     int r,c,d,temp; //row colum direction
-    srand((int)time(NULL));
+   
     
     //Carrier
     r=rand()%boardrows;

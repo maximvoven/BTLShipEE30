@@ -55,7 +55,7 @@ void aiPlayer(board Board, aiMemory *memory,int shot[2]){
 		}
 		memory->firstShot[0]=shot[0];
 		memory->firstShot[1]=shot[1];
-		Sleep(rand()%300 + 100);
+
 		return;
 	}
 	//+ Search Pattern

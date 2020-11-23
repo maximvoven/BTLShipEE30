@@ -45,9 +45,11 @@ void displayShips(int board[boardrows][boardcolumns]){
             else if(board[r][c]==destroyer){
                 printf("|D");
             }
+            
             else {
-                printf("|%d", board[r][c]);
+                printf("|X");
             }
+            
         }
         printf("|\n");
     }
