@@ -32,8 +32,6 @@ void setupShipsR(int board[boardrows][boardcolumns])
 {
     //L at the end of ship name gives length ship
     int r,c,d,temp; //row colum direction
-   
-    
     //Carrier
     r=rand()%boardrows;
     c=rand()%boardcolumns;
@@ -54,7 +52,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
         }
     }
     for(int i=0;i<carrierL;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 board[r-i][c]=carrier;
                 break;
@@ -68,7 +66,8 @@ void setupShipsR(int board[boardrows][boardcolumns])
                 board[r][c+i]=carrier;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 4, Carrier");
+                while(1);
                 break;
         }
     }
@@ -94,7 +93,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
         }
     }
     for(int i=0;i<battleshipL;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 board[r-i][c]=battleship;
                 break;
@@ -108,7 +107,8 @@ void setupShipsR(int board[boardrows][boardcolumns])
                 board[r][c+i]=battleship;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 3 Battleship");
+                while(1);
                 break;
         }
     }
@@ -134,7 +134,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
         }
     }
     for(int i=0;i<cruiserL;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 board[r-i][c]=cruiser;
                 break;
@@ -148,7 +148,8 @@ void setupShipsR(int board[boardrows][boardcolumns])
                 board[r][c+i]=cruiser;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 3 Cruiser");
+                while(1);
                 break;
         }
     }
@@ -174,7 +175,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
         }
     }
     for(int i=0;i<submarineL;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 board[r-i][c]=submarine;
                 break;
@@ -188,7 +189,8 @@ void setupShipsR(int board[boardrows][boardcolumns])
                 board[r][c+i]=submarine;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 3 Submarine");
+                while(1);
                 break;
         }
     }
@@ -214,7 +216,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
         }
     }
     for(int i=0;i<destroyerL;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 board[r-i][c]=destroyer;
                 break;
@@ -228,7 +230,8 @@ void setupShipsR(int board[boardrows][boardcolumns])
                 board[r][c+i]=destroyer;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 3 Destroyer");
+                while(1);
                 break;
         }
     }
@@ -236,7 +239,7 @@ void setupShipsR(int board[boardrows][boardcolumns])
 }
 
 static int checkIfValid(int board[boardrows][boardcolumns],int r,int c,int d, int length){
-    switch(d){
+    switch(d%4){
         case 0:
             if(r-(length-1)<0) return 0;
             break;
@@ -250,12 +253,13 @@ static int checkIfValid(int board[boardrows][boardcolumns],int r,int c,int d, in
             if(c+(length-1)>=10) return 0;
             break;
         default:
-            exit(EXIT_FAILURE);
+            perror("Direction Exceeded 3 CheckIfValid");
+            while(1);
             break;
     }
 
     for(int i=0;i<length;i++){
-        switch(d){
+        switch(d%4){
             case 0:
                 if(board[r-i][c]!=0) return 0;
                 break;
@@ -269,7 +273,8 @@ static int checkIfValid(int board[boardrows][boardcolumns],int r,int c,int d, in
                 if(board[r][c+i]!=0) return 0;
                 break;
             default:
-                exit(EXIT_FAILURE);
+                perror("Direction Exceeded 3 CheckIfValid");
+                while(1);
                 break;
         }
     }
