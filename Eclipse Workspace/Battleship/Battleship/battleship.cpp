@@ -191,6 +191,8 @@ static void shipSunk(board *player1,board *player2, int shot[2]){
 		else{
 			player1->ShipSunk=false;
 		}
+	}else{
+		player1->ShipSunk=false;
 	}
 }
 
