@@ -11,6 +11,7 @@
 #include "board.h"
 
 //Functions
-void launchBattlehip();
+int launchBattlehip();
+void testBattleShip(int typeTest);
 
 #endif /* BATTLESHIP_BATTLESHIP_H_ */
