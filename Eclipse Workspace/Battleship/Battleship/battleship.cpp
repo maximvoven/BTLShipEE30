@@ -166,30 +166,31 @@ static void shipSunk(board *player1,board *player2, int shot[2]){
 		}
 		if(accumelator==0){
 			player1->ShipSunk=true;
-            switch (abs(player2->board[shot[0]][shot[1]])) {
-                case battleship:
-                    printf("Battleship has been Sunk!\n");
-                    break;
-                    
-                case carrier:
-                    printf("Carrier has been Sunk!\n");
-                    break;
-                    
-                case cruiser:
-                    printf("Cruiser has been Sunk!\n");
-                    break;
-                    
-                case submarine:
-                    printf("Submarine has been Sunk!\n");
-                    break;
-                    
-                case destroyer:
-                    printf("Destroyer has been Sunk!\n");
-                    break;
-            }
-        }
-        
-		player1->ShipSunk=false;
+			switch (abs(player2->board[shot[0]][shot[1]])) {
+			case battleship:
+				printf("Battleship has been Sunk!\n");
+				break;
+
+			case carrier:
+				printf("Carrier has been Sunk!\n");
+				break;
+
+			case cruiser:
+				printf("Cruiser has been Sunk!\n");
+				break;
+
+			case submarine:
+				printf("Submarine has been Sunk!\n");
+				break;
+
+			case destroyer:
+				printf("Destroyer has been Sunk!\n");
+				break;
+			}
+		}
+		else{
+			player1->ShipSunk=false;
+		}
 	}
 }
 
